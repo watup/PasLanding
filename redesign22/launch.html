@@ -1,0 +1,687 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            display: none;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 2;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 2;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 2;
+        }
+        .header {
+            position: absolute;
+        }
+
+        .mapView {
+            position: absolute;
+            left: 300px;
+            top: 300px;
+            border: 1px solid #000;
+            width: 760px;
+            height: 360px;
+            z-index: 100;
+            background-color: #000;
+            overflow: hidden;
+        }
+        .map {
+            position: absolute;
+            width: 4000px;
+            height: 4000px;
+            background-color: #fff;
+        }
+        .location {
+            width: 40px;
+            height: 40px;
+            display: inline-block;
+            position: relative;
+        }
+        .player {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+        }
+        .locationObject, .person {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            top: 0px;
+        }
+        .talkyBox {
+            position: absolute;
+            top: 300px;
+            left: 10px;
+            text-align: left;
+            background-color: #fff;
+            width: 280px;
+        }
+        .playerTalkHistory {
+            height: 300px;
+            overflow-y: scroll;
+            font-size: 12px;
+        }
+        .playerTalkInput {
+            height: 20px;
+            width: 250px;
+        }
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+    <script src="knockout-3.0.0.js"></script>
+</head>
+<body>
+    <div class="header">
+        The non-production environments of WebPAS are below:
+    </div>
+    <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+        <div class="environmentName">Dev</div>
+    </div></a>
+    <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+        <div class="environmentName">Test</div>
+    </div></a>
+    <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+        <div class="environmentName">Train</div>
+    </div></a>
+    <div class="talkyBox" data-bind="with: playerModel">
+        <!--<div data-bind="text: conversationLog().length"></div>-->
+        <div class="playerTalkHistory" data-bind="foreach: conversationLog">
+            <div class="playerTalkHistoryItem" data-bind="text: $data"></div>
+        </div>
+        <div class="playerTalkInput" data-bind="text: aboutToSay"></div>
+    </div>
+    <div class="mapView">
+        <div class="map" data-bind="style: { left: left() + 'px', top: top() + 'px' }, foreach: locations"><!--
+            --><div class="location" data-bind="    style: { backgroundImage: 'url(' + backgroundImage + ')' }, css: 'col' + x + ' row' + y, attr: { id: 'location' + id }">&nbsp;<!--
+                --><!-- ko foreach: objects--><!--
+                    --><div class="locationObject" data-bind="    style: { backgroundImage: 'url(' + image + ')' }"></div><!--
+                --><!-- /ko --><!--
+                --><!-- ko with: person--><!--
+                    --><div class="person" data-bind="    style: { backgroundImage: 'url(' + image + ')' }"></div><!--
+                --><!-- /ko --><!--
+            --></div><!--
+    --></div>
+        <!-- ko with:playerModel -->
+        <div class="player" data-bind="style: { left: left() + 'px', top: top() + 'px', backgroundImage: 'url(' + image + ')' }">&nbsp;</div>
+        <!-- /ko -->
+    </div>
+
+    <script type="text/javascript">
+        var locationObjectModel = function (image) {
+            var self = this;
+
+            self.image = image;
+        }
+        var locationModel = function (id, x, y, person) {
+            var self = this;
+
+            self.id = id;
+            self.x = x;
+            self.y = y;
+            self.canMoveTo = true;
+            self.backgroundImage = "pavement.png";
+            self.objects = ko.observableArray();
+            self.person = ko.observable();
+        }
+
+        var PersonModel = function (name, image, triggerResponses, itemsForSale) {
+            var self = this;
+
+            self.name = name;
+            self.image = image;
+            self.conversationModel = new ConversationModel(triggerResponses);
+            self.itemExchangeModel = new ItemExchangeModel(itemsForSale);
+            self.purchaseTrigger = 'buy';
+
+            self.TalkTo = function (whatWasSaid) {
+                if (whatWasSaid.toLowerCase() == self.purchaseTrigger) {
+                    // give a list of possible purchase items
+                    return self.itemExchangeModel.GetShopInventory();
+                } else {
+                    return self.conversationModel.GetResponse(whatWasSaid);
+                }
+            }
+            self.Purchase = function (itemName) {
+                return self.itemExchangeModel.Purchase(itemName);
+            }
+        }
+
+        var ItemExchangeModel = function (itemsForSale) {
+            var self = this;
+
+            self.itemsForSale = ko.observableArray(itemsForSale);
+
+            self.Purchase = function (itemName) {
+                var item = self.GetItemByName(itemName);
+                return item;
+            }
+            self.GetShopInventory = function () {
+                var shopInventory = [];
+                for (var i = 0; i < self.itemsForSale().length; i++) {
+                    var itemDetail = self.itemsForSale()[i].name + ' ' + self.itemsForSale()[i].value;
+                    console.log(itemDetail);
+                    shopInventory.push(itemDetail);
+                }
+                console.log(shopInventory);
+                return shopInventory;
+            };
+            self.GetItemByName = function (itemName) {
+                var match = ko.utils.arrayFirst(self.itemsForSale(), function (item) {
+                    return item.name.toLowerCase() === itemName.toLowerCase();
+                });
+                console.log(match);
+                return match;
+            }
+
+        }
+        var ItemModel = function (name, value) {
+            var self = this;
+
+            self.name = name;
+            self.value = value;
+        }
+
+        var ConversationModel = function (triggerResponses) {
+            var self = this;
+
+            self.triggerResponses = ko.observableArray(triggerResponses);
+
+            self.GetResponse = function (inputTrigger) {
+                var response = self.CheckTrigger(inputTrigger);
+                if (!response)
+                    return "I don't know anything about that.";
+                return response;
+            }
+            self.CheckTrigger = function (inputTrigger) {
+                var match = ko.utils.arrayFirst(self.triggerResponses(), function (item) {
+                    console.log('compare ' + item.trigger.toLowerCase() + ' to ' + inputTrigger.toLowerCase());
+                    return item.trigger.toLowerCase().indexOf(inputTrigger.toLowerCase()) >= 0;
+                });
+                if (match)
+                    return match.response;
+                return null;
+            }
+        }
+        var SpeechTriggerResponseModel = function (trigger, response) {
+            var self = this;
+
+            self.trigger = trigger;
+            self.response = response;
+        }
+        
+        var PlayerModel = function () {
+            var self = this;
+
+            self.image = 'Player.gif';
+            self.left = ko.observable();
+            self.top = ko.observable();
+            self.currentLocation = ko.observable();
+            self.talkingTo = ko.observable();
+            self.attemptingToTalk = false;
+            self.attemptingToDrop = false;
+            self.aboutToSay = ko.observable('');
+            self.aboutToDrop = ko.observable('');
+            self.conversationLog = ko.observableArray();
+            self.credits = ko.observable(2000);
+            self.inventory = ko.observableArray();
+            self.inventoryLimit = 10;
+
+            self.SetPersonToTalkTo = function (person) {
+                self.talkingTo(person);
+                if (person != null) {
+                    self.UpdateConversationLog('Talking to ' + person.name);
+                } else {
+                    self.UpdateConversationLog('Stopped talking');
+                }
+            };
+
+            self.UpdateConversationLog = function (text) {
+                if (text instanceof Array) {
+                    for (var i = 0; i < text.length; i++) {
+                        self.conversationLog.push(text[i]);
+                    }
+                } else {
+                    self.conversationLog.push(text);
+                }
+                self.aboutToSay('');
+                $(".playerTalkHistory").scrollTop($(".playerTalkHistory")[0].scrollHeight);
+            };
+
+            self.SayTheThing = function () {
+                // is this an attempt to purchase something
+                var purchaseTrigger = self.talkingTo().purchaseTrigger;
+                if (self.aboutToSay().substring(0, 3).toLowerCase() == purchaseTrigger && self.aboutToSay().length > purchaseTrigger.length) {
+                    self.PurchaseTheThing();
+                } else {
+                    var saying = self.aboutToSay();
+                    self.UpdateConversationLog('> '+saying);
+                    var response = self.talkingTo().TalkTo(saying);
+                    self.UpdateConversationLog(response);
+                }
+            };
+                        
+            self.DropTheThing = function () {
+                console.log('drop ' + self.aboutToDrop());
+                var itemToDrop = self.aboutToDrop().trim();
+                // find this item in our inventory
+                var match = ko.utils.arrayFirst(self.inventory(), function (item) {
+                    return item.name.toLowerCase() === itemToDrop.toLowerCase();
+                });
+                if (match) {
+                    self.UpdateConversationLog('Dropped ' + match.name);
+                    self.inventory.remove(match);
+                } else {
+                    self.UpdateConversationLog('You don\'t have a ' + itemToDrop);
+                }
+                self.aboutToDrop('');
+                self.attemptingToDrop = false;
+            };
+
+            self.PurchaseTheThing = function () {
+                if (self.inventory().length >= self.inventoryLimit) {
+                    self.UpdateConversationLog('You have no room to get more things :(');
+                    return;
+                }
+                var itemName = self.aboutToSay().substring(4);
+                var item = self.talkingTo().Purchase(itemName);
+                if (item!=null) {
+                    if (item.value < self.credits()) {
+                        self.credits(self.credits() - item.value);
+                        self.inventory.push(item);
+                        self.UpdateConversationLog('You purchased a ' + itemName + '!');
+                    } else {
+                        self.UpdateConversationLog('You cannot affort the ' + itemName + '!');
+                    }
+                } else {
+                    self.UpdateConversationLog('Don\'t know what ' + itemName + ' is!');
+                }
+            };
+
+            self.DisplayInventory = function () {
+                self.DisplayCredits();
+                for (var i = 0; i < self.inventory().length; i++) {
+                    self.UpdateConversationLog(i + '. ' + self.inventory()[i].name);
+                }
+            }
+            self.DisplayCredits = function () {
+                self.UpdateConversationLog('Credits: ' + self.credits());
+            }
+
+        }
+
+        var mapModel = function (width, height, locations) {
+            var self = this;
+
+            self.locationHeight = 40;
+            self.locationWidth = 40;
+            self.mapLocationsHeightCount = 9;
+            self.mapLocationsWidthCount = 19;
+            self.mapLocationsMidHeight = 5;
+            self.mapLocationsMidWidth = 10;
+            self.left = ko.observable(0);
+            self.top = ko.observable(0);
+            self.goLeft = ko.observable(false);
+            self.goRight = ko.observable(false);
+            self.goUp = ko.observable(false);
+            self.goDown = ko.observable(false);
+            self.locations = ko.observableArray(locations);
+            self.width = width;
+            self.height = height;
+            //self.currentLocation = 410;
+
+            self.playerModel = new PlayerModel();
+    
+            self.MoveToCoordinates = function (x, y) {
+                var moveToLocation = self.GetLocationByCoordinates(x, y);
+                if (moveToLocation) {
+                    if (moveToLocation.canMoveTo) {
+                        self.playerModel.currentLocation(moveToLocation);
+                        console.log('now standing on id ' + self.playerModel.currentLocation().id);
+                        self.CenterMapOnLocation(moveToLocation);
+                    }
+                }
+            }
+
+            self.MoveLeft = function () {
+                self.MoveToCoordinates(self.playerModel.currentLocation().x - 1, self.playerModel.currentLocation().y);
+            }
+            self.MoveRight = function () {
+                self.MoveToCoordinates(self.playerModel.currentLocation().x + 1, self.playerModel.currentLocation().y);
+            }
+            self.MoveUp = function () {
+                self.MoveToCoordinates(self.playerModel.currentLocation().x, self.playerModel.currentLocation().y-1);
+            }
+            self.MoveDown = function () {
+                self.MoveToCoordinates(self.playerModel.currentLocation().x, self.playerModel.currentLocation().y+1);
+            }
+            self.StopTalking = function () {
+                self.playerModel.attemptingToTalk = false;
+                self.playerModel.SetPersonToTalkTo(null);
+            }
+            self.StartTalking = function () {
+                self.playerModel.attemptingToTalk = true;
+            }
+            self.DisplayPlayerInventory = function () {
+                self.playerModel.DisplayInventory();
+            };
+            self.StartDroppingItem = function () {
+                self.playerModel.attemptingToDrop = true;
+            };
+            self.ActivelyDroppingItem = function () {
+                return self.playerModel.attemptingToDrop;
+            }
+
+            self.AreTryingToTalk = function (key) {
+                if (self.playerModel.attemptingToTalk) {
+                    // if there is someone there, then start talking to them
+                    var checkX = self.playerModel.currentLocation().x;
+                    var checkY = self.playerModel.currentLocation().y;
+                    var direction = '';
+                    if (key == 37) {
+                        checkX = self.playerModel.currentLocation().x - 1;
+                        direction = 'left';
+                    } else if (key = 38) {
+                        checkX = self.playerModel.currentLocation().x + 1;
+                        direction = 'right';
+                    } else if (key = 39) {
+                        checkY = self.playerModel.currentLocation().y - 1;
+                        direction = 'up';
+                    } else if (key = 40) {
+                        checkY = self.playerModel.currentLocation().y + 1;
+                        direction = 'down';
+                    }
+                    self.playerModel.UpdateConversationLog('Talk ' + direction);
+                    console.log('checking the location ' + checkX + ", " + checkY);
+                    var location = self.GetLocationByCoordinates(checkX, checkY);
+                    if (location.person() != null) {
+                        self.playerModel.SetPersonToTalkTo(location.person());
+                        console.log(self.playerModel.talkingTo());
+                    } else {
+                        self.playerModel.UpdateConversationLog('No one to the ' + direction+ ' to talk too');
+                        self.playerModel.attemptingToTalk = false;
+                    }
+                    return true;
+                }
+                return false;
+            }
+            self.ActivelyTalking = function () {
+                return self.playerModel.talkingTo() != null;
+            }
+
+            self.ProcessKeyDown = function (key) {
+
+                console.log(key);
+                if (self.ActivelyTalking() && key != 81) {// lol, 81 = q
+                    if (key == 13) {// enter
+                        self.playerModel.SayTheThing();
+                        return;
+                    }
+                    self.playerModel.aboutToSay(self.playerModel.aboutToSay() + String.fromCharCode(key.toString().toLowerCase()));
+                    return;
+                } else if (self.ActivelyDroppingItem()) {
+                    if (key == 13) {// enter
+                        self.playerModel.DropTheThing();
+                        return;
+                    }
+                    self.playerModel.aboutToDrop(self.playerModel.aboutToDrop() + String.fromCharCode(key));
+                    return;
+                }
+
+                switch (key) {
+                    case 37: // left
+                        if (self.AreTryingToTalk(key)) {
+                            break;
+                        }
+                        self.goLeft(true);
+                        self.MoveLeft();
+                        break;
+
+                    case 38: // up
+                        if (self.AreTryingToTalk(key)) {
+                            break;
+                        }
+                        self.goUp(true);
+                        self.MoveUp();
+                        break;
+
+                    case 39: // right
+                        if (self.AreTryingToTalk(key)) {
+                            break;
+                        }
+                        self.goRight(true);
+                        self.MoveRight();
+                        break;
+
+                    case 40: // down
+                        if (self.AreTryingToTalk(key)) {
+                            break;
+                        }
+                        self.goDown(true);
+                        self.MoveDown();
+                        break;
+                    case 68: // d
+                        self.StartDroppingItem();
+                        break;
+                    case 73: // i
+                        self.DisplayPlayerInventory();
+                        break;
+                    case 84: // t
+                        self.StartTalking();
+                        break;
+                    case 81: // q
+                        self.StopTalking();
+                        break;
+
+                    default: return; // exit this handler for other keys
+                }
+            }
+            self.ProcessKeyUp = function (key) {
+                switch (key) {
+                    case 37: // left
+                        self.goLeft(false);
+                        break;
+
+                    case 38: // up
+                        self.goUp(false);
+                        break;
+
+                    case 39: // right
+                        self.goRight(false);
+                        break;
+
+                    case 40: // down
+                        self.goDown(false);
+                        break;
+
+                    default: return; // exit this handler for other keys
+                }
+            }
+
+            self.CenterMapOnLocation = function (location) {
+                //var location = self.GetLocationById(locationId);
+                var newX = (-(location.x ) * self.locationWidth) + (self.mapLocationsMidWidth * self.locationWidth);
+                var newY = (-(location.y ) * self.locationHeight) + (self.mapLocationsMidHeight * self.locationHeight);
+                self.left(newX);
+                self.top(newY);
+            }
+            self.GetLocationById = function (locationId) {
+                var match = ko.utils.arrayFirst(self.locations(), function (item) {
+                    return locationId === item.id;
+                });
+                return match;
+            }
+            self.GetLocationByCoordinates = function (x,y) {
+                var match = ko.utils.arrayFirst(self.locations(), function (item) {
+                    return x === item.x && y === item.y;
+                });
+                return match;
+            }
+            self.DrawPlayer = function () {
+                self.playerModel.currentLocation(self.GetLocationById(305));
+                self.playerModel.left((self.mapLocationsMidWidth - 1) * self.locationWidth);
+                self.playerModel.top((self.mapLocationsMidHeight - 1)* self.locationHeight);
+            }
+
+            self.DrawPlayer();
+            self.CenterMapOnLocation(self.playerModel.currentLocation());
+        }
+
+
+        var locations = [];
+        var counter = 1;
+        for (var row = 1; row <= 40; row++) {
+            for (var col = 1; col <= 100; col++) {
+                var newLocation = new locationModel(counter, col, row);
+                if (col == 1 || col == 100 || row == 1 || row == 100) {
+                    newLocation.backgroundImage = 'brickwall.png';
+                    newLocation.canMoveTo = false;
+                }
+                locations.push(newLocation);
+                counter += 1;
+            }
+        }
+        function setLocationDetails(index, pic, canMoveTo, objects, person) {
+            if(pic!=null)
+                locations[index-1].backgroundImage = pic;
+            locations[index - 1].canMoveTo = canMoveTo;
+            if (objects) {
+                for (var i = 0; i < objects.length; i++) {
+                    var locObject = new locationObjectModel(objects[i]);
+                    locations[index - 1].objects().push(locObject);
+                }
+            }
+            if (person) {
+                locations[index - 1].person(person);
+            }
+        }
+
+        setLocationDetails(304, null, false, null, new PersonModel('Talky Test Guy','personTalker1.gif', [new SpeechTriggerResponseModel('hello', 'hi buddy')], [new ItemModel('Empty Coke Can', 750), new ItemModel('Twig', 500)]));
+        setLocationDetails(107, 'brickwall.png', false);
+        setLocationDetails(207, 'verticalWindowTop.png', false);
+        setLocationDetails(307, 'verticalWindow.png', false);
+        setLocationDetails(407, 'verticalWindow.png', false);
+        setLocationDetails(507, 'verticalWindow.png', false);
+        setLocationDetails(607, 'verticalWindowBottom.png', false);
+        setLocationDetails(802, 'brickwall.png', false);
+        setLocationDetails(803, 'brickwall.png', false);
+        setLocationDetails(804, 'brickwall.png', false);
+        setLocationDetails(805, 'brickwall.png', false);
+        setLocationDetails(806, 'brickwall.png', false);
+        setLocationDetails(807, 'brickwall.png', false);
+        setLocationDetails(503, null, false, ['horizontalTableLeft.png']);
+        setLocationDetails(504, null, false, ['horizontalTableMiddle.png']);
+        setLocationDetails(505, null, false, ['horizontalTableRight.png']);
+
+        setLocationDetails(411, 'brickwall.png', false);
+        setLocationDetails(511, 'verticalWindowTop.png', false);
+        setLocationDetails(611, 'verticalWindow.png', false);
+        setLocationDetails(711, 'verticalWindow.png', false);
+        setLocationDetails(811, 'verticalWindowBottom.png', false);
+        setLocationDetails(911, 'brickwall.png', false);
+        setLocationDetails(412, 'horizontalWindowLeft.png', false);
+        setLocationDetails(413, 'horizontalWindowMiddle.png', false);
+        setLocationDetails(414, 'horizontalWindowMiddle.png', false);
+        setLocationDetails(415, 'horizontalWindowRight.png', false);
+        setLocationDetails(416, 'brickwall.png', false);
+        setLocationDetails(516, 'verticalWindowTop.png', false);
+        setLocationDetails(616, 'verticalWindow.png', false);
+        setLocationDetails(716, 'verticalWindow.png', false);
+        setLocationDetails(816, 'verticalWindowBottom.png', false);
+        setLocationDetails(916, 'brickwall.png', false);
+
+
+        setLocationDetails(109, 'potPlant1.png', false);
+
+
+        $(document).ready(function () {
+            var vm = new mapModel(5,4,locations);
+            ko.applyBindings(vm);
+
+            positionTheStupidElements();
+
+
+            $("body").keydown(function (e) {
+                vm.ProcessKeyDown(e.which);
+
+            });
+            $("body").keyup(function (e) {
+                vm.ProcessKeyUp(e.which);
+            });
+
+        });
+
+
+        function randomIntFromInterval(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+        
+        function positionTheStupidElements() {
+            var dev = $('.dev');
+            var test = $('.test');
+            var train = $('.training');
+            var header = $('.header');
+            var arrowKeys = $('.arrowKeys');
+            var ambo = $('.ambulance');
+
+            var padding = 50;
+
+            var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+            header.css("left", headerLeft);
+            header.css("top", 100);
+            header.show();
+
+            var testLeft = ($('body').width() / 2) - (test.width() / 2);
+            test.css("left", testLeft);
+            test.css("top", 180);
+            test.show();
+
+            var devLeft = testLeft - dev.width() - padding;
+            dev.css("left", devLeft);
+            dev.css("top", 180);
+            dev.show();
+
+            var trainLeft = testLeft + test.width() + padding;
+            train.css("left", trainLeft);
+            train.css("top", 180);
+            train.show();
+
+
+
+            var arrowKeysLeft = ($('body').width() / 2) - (260); // width wat
+            arrowKeys.css("left", arrowKeysLeft);
+            arrowKeys.css("top", 400);
+            arrowKeys.show();
+        }
+    </script>
+</body>
+</html>

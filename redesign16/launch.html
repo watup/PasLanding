@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            display: none;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 9;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 9;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 9;
+        }
+        .header {
+            position: absolute;
+            z-index: 9;
+        }
+        
+        .ambulance {
+            position: absolute;
+            padding: 0;
+            margin: 0;
+            font-size: 0;
+            display: none;
+        }
+        .ambulance img {
+            width: 60px;
+            height: 60px;
+        }
+        .light {
+            position: absolute;
+            display: none;
+            z-index: 100;
+            background-color: #fff;
+            opacity: 1;
+        }
+        .crater, .fire {
+            font-size: 0;
+            position: absolute;
+            display: none;
+            z-index: 50;
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        The non-production environments of WebPAS are below:
+    </div>
+    <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+        <div class="environmentName">Dev</div>
+    </div></a>
+    <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+        <div class="environmentName">Test</div>
+    </div></a>
+    <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+        <div class="environmentName">Train</div>
+    </div></a>
+    <div class="ambulance"><img src="FlamingAmbo.gif" alt="ambo" /></div>
+    <div class="fire"><img src="smallFire.gif" alt="fire" /></div>
+    <div class="crater"><img src="crater.png" alt="crater" /></div>
+    <div class="light"></div>
+    <script type="text/javascript">
+
+        var objectCount = 0;;
+        var dev;
+        var test;
+        var train;
+        var header;
+        var light;
+        var crater;
+        var fire;
+
+        $(document).ready(function () {
+            
+            dev = $('.dev');
+            test = $('.test');
+            train = $('.training');
+            header = $('.header');
+            light = $('.light');
+            crater = $('.crater');
+            fire = $('.fire');
+
+            positionTheStupidElements();
+
+            var ambo = $('.ambulance');
+            
+            ambo.css({ top: 0 - ambo.height() });
+            ambo.css({ left: ($('body').width() / 2) + 200 });
+            ambo.show();
+
+            var moveToY = 400;// ($('body').height() / 2) - (ambo.height() / 2);
+            var moveToX = ($('body').width() / 2) - (ambo.width() / 2);
+
+            ambo.animate({ "left": moveToX, "top": moveToY },
+                {
+                    duration: 4000,
+                    easing: 'linear',
+                    complete: function () {
+                        light.css({ width: $('body').width(), height: $(document).height() });
+                        light.show();
+                        fire.css({ top: dev.position().top - fire.height() });
+                        fire.css({ left: dev.position().left });
+                        fire.show();
+                        ambo.hide();
+                        crater.css({ top: moveToY });
+                        crater.css({ left: moveToX - (crater.width() / 2) + (ambo.width() / 2) });
+                        crater.show();
+                        train.css({ 'background-color': "#C0C0C0" });
+                        dev.css({ 'background-color': "#C0C0C0" });
+                        test.css({ 'background-color': "#C0C0C0" });
+                        $('body').css({ 'background-color': "#fff" });
+                        header.css({ 'color': "#C0C0C0" });
+                        setTimeout(function () { FadeOutLight() }, 1000);
+
+                    },
+                    step: function (now, fx) {
+                    }
+                });
+
+
+        });
+
+        function FadeOutLight() {
+            light.animate({ opacity: 0 }, {
+                duration: 6000,
+                complete: function () {
+                    light.hide();
+                }
+            });
+
+        }
+
+
+        function positionTheStupidElements() {
+            var padding = 50;
+
+            var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+            header.css("left", headerLeft);
+            header.css("top", 100);
+            header.show();
+
+            var testLeft = ($('body').width() / 2) - (test.width() / 2);
+            test.css("left", testLeft);
+            test.css("top", 180);
+            test.show();
+
+            var devLeft = testLeft - dev.width() - padding;
+            dev.css("left", devLeft);
+            dev.css("top", 180);
+            dev.show();
+
+            var trainLeft = testLeft + test.width() + padding;
+            train.css("left", trainLeft);
+            train.css("top", 180);
+            train.show();
+        }
+    </script>
+</body>
+</html>

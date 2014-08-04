@@ -1,0 +1,211 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .content{
+            width: 700px;
+            margin: 0 auto;
+            margin-top: 125px;
+        }
+        .linksContainer {
+            margin-top: 40px;
+            position: relative;
+        }
+        .environmentLink {
+            display: inline-block;
+            padding-left: 5px;
+            padding-right: 5px;
+            width: 200px;
+            height: 100px;
+            position: absolute;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 90000;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 90000;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 90000;
+        }
+        
+        .ambulance {
+            position: absolute;
+            top: 0px;
+            display: none;
+        }
+        .ambulance img {
+            width: 30px;
+            height: 30px;
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="content">
+        <div class="header">
+            The non-production environments of WebPAS are below:
+        </div>
+        <div class="linksContainer">
+            <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+                <div class="environmentName">Dev</div>
+            </div></a>
+            <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+                <div class="environmentName">Test</div>
+            </div></a>
+            <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+                <div class="environmentName">Train</div>
+            </div></a>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        function getRandomArbitary(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        var goTo;
+
+        $(document).ready(function () {
+            
+            var dev = $('.dev');
+            var test = $('.test');
+            var train = $('.training');
+
+            console.log(test.position().left);
+
+            var testLeft = test.position().left;
+            var trainLeft = train.position().left;
+            var devLeft = dev.position().left;
+            goTo = $(document).height() ;
+
+            //$('.linksContainer').waambulanceRain({ startDelay: 0, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft });
+            //$('.linksContainer').waambulanceRain({ startDelay: 1000, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft + 60 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 2000, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft + 70 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 3200, top: 0, speed: 2000, type: 'Red', returnDelay: 100, left: testLeft + 80 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 2000, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft + 90 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 500, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft + 100 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 3500, top: 0, speed: 2000, type: 'Red', returnDelay: 100, left: testLeft + 110 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 2500, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft + 120 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 1500, top: 0, speed: 2000, type: 'Red', returnDelay: 100, left: testLeft + 130 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 2750, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft + 140 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 1450, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft + 150 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 3750, top: 0, speed: 2000, type: 'Red', returnDelay: 100, left: testLeft + 160 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 2250, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft + 170 });
+            //$('.linksContainer').waambulanceRain({ startDelay: 1750, top: 0, speed: 2000, type: 'Red', returnDelay: 0, left: testLeft + 180 });
+
+            var speed = 2000;
+            var leftBoundary = testLeft;
+            var rightBoundary = testLeft + 180;
+            for (var i = 0; i < 100; i++) {
+                var returnDelay = getRandomInt(0, 100);
+                var startDelay = getRandomInt(0, 2100);
+                var left = getRandomInt(leftBoundary, rightBoundary);
+                $('.linksContainer').waambulanceRain({ startDelay: startDelay, top: 0, speed: speed, type: 'Red', returnDelay: returnDelay, left: left });
+            }
+
+            leftBoundary = trainLeft;
+            rightBoundary = trainLeft + 180;
+            for (var i = 0; i < 100; i++) {
+                var returnDelay = getRandomInt(0, 100);
+                var startDelay = getRandomInt(0, 2100);
+                var left = getRandomInt(leftBoundary, rightBoundary);
+                $('.linksContainer').waambulanceRain({ startDelay: startDelay, top: 0, speed: speed, type: 'Orange', returnDelay: returnDelay, left: left });
+            }
+
+            leftBoundary = devLeft;
+            rightBoundary = devLeft + 180;
+            for (var i = 0; i < 100; i++) {
+                var returnDelay = getRandomInt(0, 100);
+                var startDelay = getRandomInt(0, 2100);
+                var left = getRandomInt(leftBoundary, rightBoundary);
+                $('.linksContainer').waambulanceRain({ startDelay: startDelay, top: 0, speed: speed, type: 'Blue', returnDelay: returnDelay, left: left });
+            }
+        });
+
+        (function ($) {
+            var objectCount = 0;
+
+            $.fn.waambulanceRain = function (options) {
+
+                var name = addTheStupidHtml(this, options);
+                var allStuff = $(this);
+                    setTimeout(function () {
+                        console.log('ok ' + name);
+                        animateMyStupidAmboWhatever('#' + name, allStuff, options);
+                    
+                    }, options.startDelay)
+
+                return this;
+            }
+
+
+            function addTheStupidHtml(container, options) {
+                objectCount = objectCount + 1;
+
+                id = 'ambulance' + objectCount;
+                $(container).append('<div id="' + id + '" class="ambulance" style="z-index: 10' + objectCount + '"><img src="ambo'+ options.type + '.png" alt="dat ambo" /></div>')
+
+                return id;
+            }
+
+            function animateMyStupidAmboWhatever(id, everything, options) {
+
+                var settings = $.extend({
+                    speed: 2000,
+                    top: 1,
+                    left: -256,
+                    returnDelay: 2000
+                }, options);
+
+                var ambo = $(everything).find(id);
+                ambo.show();
+                console.log(ambo.length);
+                console.log(id);
+
+                ambo.css("left", settings.left);
+                ambo.css("top", settings.top);
+                console.log(settings);
+                ambo.animate({ "top": goTo + "px" }, settings.speed, 'linear', function () {
+                    
+                    //ambulance.css("top", settings.top);
+
+                    setTimeout(function () {
+                        animateMyStupidAmboWhatever(id, everything, options);
+                    }, settings.returnDelay)
+                });
+
+            }
+        }(jQuery));
+
+    </script>
+</body>
+</html>

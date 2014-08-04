@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .content{
+            width: 700px;
+            margin: 0 auto;
+            margin-top: 125px;
+        }
+        .linksContainer {
+            margin-top: 40px;
+        }
+        .environmentLink {
+            display: inline-block;
+            padding-left: 5px;
+            padding-right: 5px;
+            width: 200px;
+            height: 100px;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+        }
+        .test {
+            background-color: #DBB085;
+        }
+        .training {
+            background-color: #D88484;
+        }
+        
+        .ambulance {
+            position: absolute;
+            /*left: -256px;*/
+            /*top: 0px;*/
+            /*margin-top: 250px;*/
+        }
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+<!--    <div class="ambulance">
+        <img src="Medicine-Ambulance-icon.png" alt="ambo go fast" />
+    </div>-->
+    <div class="content">
+        <div class="header">
+            The non-production environments of WebPAS are below:
+        </div>
+        <div class="linksContainer">
+            <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+                <div class="environmentName">Dev</div>
+            </div></a>
+            <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+                <div class="environmentName">Test</div>
+            </div></a>
+            <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+                <div class="environmentName">Train</div>
+            </div></a>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        var ambulance = $('.ambulance');
+
+        var parentWidth = ambulance.parent().width();
+        var speedValue = 2000;
+        var delayBeforeReturning = 2000;
+
+        $(document).ready(function () {
+
+            setTimeout(function () {
+                $('body').waambulance({ top: 10, speed: 2000, sizeAdjuster: .5, returnDelay: 1500 });
+                $('body').waambulance({ top: 100, speed: 1000, sizeAdjuster: .75 });
+                $('body').waambulance({ top: 200, speed: 3000 });
+                $('body').waambulance({ top: 400, speed: 2500, sizeAdjuster: .5, returnDelay: 2000, left: -4000 });
+                $('body').waambulance({ top: 500, speed: 1500, returnDelay: 1500, left: -1000 });
+                $('body').waambulance({ top: 300, speed: 2500, sizeAdjuster: 1.25, returnDelay: 10000, left: -5500 });
+                $('body').waambulance({ top: 500, speed: 750, sizeAdjuster: .75, returnDelay: 2000 });
+                $('body').waambulance({ top: 420, speed: 2000, sizeAdjuster: 1, returnDelay: 3000, left: -3000 });
+                $('body').waambulance({ top: 260, speed: 2000, sizeAdjuster: .5, returnDelay: 4000, left: -500 });
+            }, 3000)
+
+
+        });
+
+        (function ($) {
+            var objectCount = 0;
+
+            $.fn.waambulance = function (options) {
+
+                var name = addTheStupidHtml(this);
+
+                animateMyStupidAmboWhatever('#' + id, $(this), options);
+
+                return this;
+            }
+
+
+            function addTheStupidHtml(container) {
+                objectCount = objectCount + 1;
+
+                id = 'ambulance' + objectCount;
+                $(container).append('<div id="' + id + '" class="ambulance" style="z-index: 1000' + objectCount + '"><img src="Medicine-Ambulance-icon.png" alt="dat ambo" /></div>')
+
+                return id;
+            }
+
+            function animateMyStupidAmboWhatever(id, everything, options) {
+
+                var settings = $.extend({
+                    speed: 2000,
+                    top: 1,
+                    left: -256,
+                    returnDelay: 2000,
+                    sizeAdjuster: 1
+                }, options);
+
+                var ambo = $(everything).children(id);
+                var parentWidth = everything.width();
+                
+                var newSize = settings.sizeAdjuster * 256;
+                ambo.css("left", settings.left);
+                ambo.css("top", settings.top);
+                ambo.children('img').css("width", newSize);
+                ambo.children('img').css("height", newSize);
+
+                ambo.animate({ "left": parentWidth + "px" }, settings.speed, 'linear', function () {
+
+                    ambulance.css("left", settings.left);
+
+                    setTimeout(function () {
+                        animateMyStupidAmboWhatever(id, everything, options);
+                    }, settings.returnDelay)
+                });
+
+            }
+        }(jQuery));
+
+
+
+    </script>
+</body>
+</html>

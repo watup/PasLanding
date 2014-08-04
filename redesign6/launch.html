@@ -1,0 +1,219 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .content{
+            width: 700px;
+            margin: 0 auto;
+            margin-top: 125px;
+        }
+        .linksContainer {
+            margin-top: 40px;
+            position: relative;
+        }
+        .environmentLink {
+            display: inline-block;
+            padding-left: 5px;
+            padding-right: 5px;
+            width: 200px;
+            height: 100px;
+            position: absolute;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 100;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 110;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 100;
+        }
+        
+        .ambulance {
+            position: absolute;
+            left: -256px;
+            top: 0px;
+            margin-top: 90px;
+        }
+        .hi, .blood {
+            position: absolute;
+            display: none;
+        }   
+        .fire {
+            position: absolute;
+            z-index: 1000;
+            display: none;
+        }
+        .fire img {
+            width: 210px;
+        }
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="hi"><img src="kpe001JustHead.png" alt="my head" /></div>
+    <div class="blood"><img src="blood.png" alt="blood" /></div>
+    <div class="ambulance">
+        <img src="Medicine-Ambulance-icon.png" alt="ambo go fast" />
+    </div>
+    <div class="content">
+        <div class="header">
+            The non-production environments of WebPAS are below:
+        </div>
+        <div class="linksContainer">
+            <div class="fire">
+                <img src="fire.gif" alt="fire" />
+            </div>
+            <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+                <div class="environmentName">Dev</div>
+            </div></a>
+            <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+                <div class="environmentName">Test</div>
+            </div></a>
+            <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+                <div class="environmentName">Train</div>
+            </div></a>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+
+        $.fn.animateRotate = function (angle, duration, easing, complete) {
+            return this.each(function () {
+                var $elem = $(this);
+
+                $({ deg: 0 }).animate({ deg: angle }, {
+                    duration: duration,
+                    easing: easing,
+                    step: function (now) {
+                        $elem.css({
+                            transform: 'rotate(' + now + 'deg)'
+                        });
+                    },
+                    complete: complete || $.noop
+                });
+            });
+        };
+
+
+        $(document).ready(function () {
+
+            var ambulance = $('.ambulance');
+            var dev = $('.dev');
+            var test = $('.test');
+            var train = $('.training');
+            var fire = $('.fire');
+
+            var parentWidth = ambulance.parent().width();
+            var halfWay = parentWidth / 2;
+            var speedValue = 1000;
+            var delayBeforeReturning = 4000;
+            
+            // why does this not always work? this is rubbish
+            //var stopAtX = testLinkLeft - ambulance.width();
+            //var what = dev.getBoundingClientRect();
+
+            var stopAtX = dev.offset().left - 255;
+
+            console.log(stopAtX);
+
+            MoveTheWaaaambulance(ambulance);
+
+            
+            function MoveTheWaaaambulance(ambulance) {
+                ambulance.animate({ "left": stopAtX + "px" }, speedValue, 'linear', function () {
+                    
+                    stopAtX = 30;
+                    dev.animate({ "left": stopAtX + "px" }, speedValue / 4, 'linear', function () {
+                        
+                        stopAtX = 270;
+                        test.animate({ "left": stopAtX + "px" }, speedValue / 4, 'linear', function () {
+
+                            //console.log(screen.width);
+                            //console.log(window.innerWidth);
+                            stopAtX = 510;
+                            train.animate({ "left": stopAtX + "px" }, speedValue / 4, 'linear', function () {
+
+
+                                fire.show(400,"linear");
+                                fire.css("left", 510);
+                                fire.css("top", -10);
+                            });
+
+                        });
+                    });
+
+                    //var startAtY = ambulance.offset().top + 175;
+                    //var startAtX = halfWay;
+                    //var firstMoveToY = startAtY + 50;
+                    //var firstMoveToX = halfWay-50;
+
+                    //var secondMoveToY = startAtY + 50;
+                    //var secondMoveToX = halfWay - 200;
+
+                    //var hi = $('.hi');
+                    //var blood = $('.blood');
+
+                    //hi.css("left", startAtX);
+                    //hi.css("top", startAtY);
+                    //hi.show();
+
+                    //hi.animate({ "top": firstMoveToY + "px", "left": firstMoveToX + "px" }, 500, 'linear', function () {
+
+                    //    blood.css("left", firstMoveToX - 25);
+                    //    blood.css("top", firstMoveToY + 38);
+                    //    blood.show();
+                    //    hi.animate({ "left": secondMoveToX + "px" }, 3500, 'linear');
+                    //});
+
+                    //hi.animateRotate(-500, 3000, "swing", function () {
+                    //    hi.hide();
+                    //    blood.hide();
+                    //});
+
+
+
+
+                    //ambulance.animate({ "left": parentWidth + "px" }, speedValue/2, 'linear', function () {
+
+
+                    //    ambulance.css("left", -256);
+
+                    //    setTimeout(function () {
+                    //        MoveTheWaaaambulance(ambulance);
+                    //    }, delayBeforeReturning)
+                    //});
+
+                });
+            }
+        });
+
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            padding-left: 5px;
+            padding-right: 5px;
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            display: none;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 90000;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 90000;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 90000;
+        }
+        .header {
+            position: absolute;
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        The non-production environments of WebPAS are below:
+    </div>
+    <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+        <div class="environmentName">Dev</div>
+    </div></a>
+    <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+        <div class="environmentName">Test</div>
+    </div></a>
+    <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+        <div class="environmentName">Train</div>
+    </div></a>
+
+    <script type="text/javascript">
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        $(document).ready(function () {
+            var dev = $('.dev');
+            var test = $('.test');
+            var train = $('.training');
+            var header = $('.header');
+
+            var vertMax = $(document).height() - dev.height();
+            var vertMin = 0;
+            var horiMax = $('body').width() - dev.width();
+            var horiMin = 0;
+
+            positionTheStupidElements();
+
+            moveElementSomewhere(dev, 5000);
+            moveElementSomewhere(test, 5000);
+            moveElementSomewhere(train, 5000);
+            moveElementSomewhere(header, 100000);
+
+            function moveElementSomewhere(element, speed, lastDirection) {
+                var horiTarget = getRandomInt(horiMin, horiMax);
+                var vertTarget = getRandomInt(vertMin, vertMax);
+                var direction = getRandomInt(1, 4);
+                if (lastDirection == 1 && direction == 1) {
+                    direction = 3;
+                }
+                if (lastDirection == 2 && direction == 3) {
+                    direction = 4;
+                }
+                if (lastDirection == 3 && direction == 3) {
+                    direction = 1;
+                }
+                if (lastDirection == 4 && direction == 4) {
+                    direction = 2;
+                }
+
+                if (direction == 1) {
+                    horiTarget = horiMin;
+                } else if (direction == 2) {
+                    vertTarget = vertMin;
+                } else if (direction == 3) {
+                    horiTarget = horiMax;
+                } else if (direction == 4) {
+                    vertTarget = vertMax;
+                }
+                element.animate({ "top": vertTarget + "px", "left": horiTarget + "px" }, speed, 'linear', function () {
+                    moveElementSomewhere(element, speed, direction);
+                });
+            }
+
+            function positionTheStupidElements() {
+                var padding = 50;
+
+                var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+                header.css("left", headerLeft);
+                header.css("top", 100);
+                header.show();
+
+                var testLeft = ($('body').width() / 2) - (test.width() / 2);
+                test.css("left", testLeft);
+                test.css("top", 180);
+                test.show();
+
+                var devLeft = testLeft - dev.width() - padding;
+                dev.css("left", devLeft);
+                dev.css("top", 180);
+                dev.show();
+
+                var trainLeft = testLeft + test.width() + padding;
+                train.css("left", trainLeft);
+                train.css("top", 180);
+                train.show();
+            }
+        });
+
+
+
+    </script>
+</body>
+</html>

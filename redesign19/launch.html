@@ -1,0 +1,459 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            display: none;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 2;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 2;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 2;
+        }
+        .header {
+            position: absolute;
+        }
+        .arrowKeys {
+            position: absolute;
+            display: none;
+        }
+        .ambulance {
+            position: absolute;
+            display: none;
+            z-index: 99999;
+        }
+        .ambulance img {
+            width: 30px;
+            height: 30px;
+        }
+        .beepBeep {
+            position: absolute;
+            display: none;
+        }
+        .person {
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            background-image: url('person1.png');
+        }
+        .pickUpArea {
+            position: absolute;
+            background-color: rgba(255, 66, 66, 0.55);
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+    <script src="knockout-3.0.0.js"></script>
+</head>
+<body>
+    <div class="header">
+        The non-production environments of WebPAS are below:
+    </div>
+    <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+        <div class="environmentName">Dev</div>
+    </div></a>
+    <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+        <div class="environmentName">Test</div>
+    </div></a>
+    <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+        <div class="environmentName">Train</div>
+    </div></a>
+    <div class="arrowKeys">
+        <img src="ArrowKeys.png" alt="arrow keys" />
+    </div>
+    <div>On screen: 
+        <span data-bind="text: people().length"></span>
+    </div>
+    <div>In ambo: 
+        <span data-bind="text: ambulancePeeps().length"></span>
+    </div>
+    <!-- ko foreach: pickUpAreas -->
+        <div data-bind="attr: { id: htmlId }, style: { left: left() + 'px', top: top() + 'px', height: height() + 'px', width: width() + 'px' }" class="pickUpArea" style="z-index: 1;">&nbsp</div>
+    <!-- /ko -->
+    <!-- ko foreach: people -->
+        <div data-bind="attr: { id: htmlId }, style: { left: left() + 'px', top: top() + 'px' }" class="person" style="z-index: 100;">&nbsp</div>
+    <!-- /ko -->
+
+    <script type="text/javascript">
+
+        var pickUpArea = function (id, left, top, width, height) {
+            var self = this;
+
+            self.left = ko.observable(left);
+            self.top = ko.observable(top);
+            self.width = ko.observable(width);
+            self.height = ko.observable(height);
+
+            self.id = id;
+            self.htmlId = ko.observable('pickUpArea' + id);
+
+        }
+
+        var personModel = function (id) {
+            var self = this;
+
+            self.id = id;
+            self.top = ko.observable();
+            self.left = ko.observable();
+            self.htmlId = 'person' + self.id;
+
+            self.CreateOnScreen = function () {
+                var x = randomIntFromInterval(1 , $('body').width());
+                var y = randomIntFromInterval(1, $(window).height());
+                self.top(y);
+                self.left(x);
+            }
+
+            self.CreateOnScreen();
+        }
+
+        var amboModel = function () {
+            var self = this;
+
+            self.speed = ko.observable(200);
+            self.speedMax = 600;
+            self.speedMin = 50;
+            self.speedChangeIncrement = 50;
+            self.moving = ko.observable(false);
+            self.goUp = ko.observable(false);
+            self.goDown = ko.observable(false);
+            self.goLeft = ko.observable(false);
+            self.goRight = ko.observable(false);
+            self.element;
+            self.ambo;
+            self.top = ko.observable(100);
+            self.left = ko.observable(100);
+            self.beepBeepCount = 0;
+
+            self.CreateOnScreen = function () {
+                var amboHtml = "<div class='ambulance'><img src='amboRight.png' alt='ambo' /></div>";
+                $('body').append(amboHtml);
+                self.element = $('.ambulance');
+
+                var amboLeft = ($('body').width() / 2) - (self.element.width() / 2);
+                self.element.css("left", amboLeft);
+                self.element.css("top", 350);
+                self.left(amboLeft);
+                self.top(350)
+                self.element.show();
+            };
+
+            self.Accelerate = function (faster) {
+                var newSpeed;
+                if (faster) {
+                    newSpeed = self.speed() - self.speedChangeIncrement;
+                    if (newSpeed < self.speedMin)
+                        newSpeed = self.speedMin;
+                } else {
+                    newSpeed = self.speed() + self.speedChangeIncrement;
+                    if (newSpeed > self.speedMax)
+                        newSpeed = self.speedMax;
+                }
+                self.speed(newSpeed);
+            };
+
+            self.AnimationTimeYall = function (newX, newY) {
+                var ambo = self.element;
+                self.moving(true);
+                ambo.animate({ "left": newX + "px", "top": newY + "px" }, {
+                    duration: self.speed(),
+                    easing: 'linear',
+                    complete: function () {
+                        self.moving(false);
+                        self.MoveAmbo()
+                    },
+                    step: function (now, fx) {
+                        if (fx.prop == 'left') {
+                            self.left(now);
+                        }
+                        if (fx.prop == 'top') {
+                            self.top(now);
+                        }
+                    }
+                });
+            }
+
+            self.MoveAmbo = function () {
+                var ambo = self.element;
+                if (self.moving()) return;
+                if (self.goRight()) {
+                    var newX = self.left() + ambo.width();
+                    ambo.find('img').attr('src', 'amboRight.png');
+                    self.AnimationTimeYall(newX, self.top());
+                    return;
+                }
+                if (self.goLeft()) {
+                    var newX = ambo.position().left - ambo.width();
+                    ambo.find('img').attr('src', 'amboLeft.png');
+                    self.AnimationTimeYall(newX, self.top());
+                    return;
+                }
+                if (self.goDown()) {
+                    var newY = ambo.position().top + ambo.height();
+                    ambo.find('img').attr('src', 'amboDown.png');
+                    self.moving(true);
+                    self.AnimationTimeYall(self.left(), newY);
+                    return;
+                }
+                if (self.goUp()) {
+                    var newY = ambo.position().top - ambo.height();
+                    ambo.find('img').attr('src', 'amboUp.png');
+                    self.moving(true);
+                    self.AnimationTimeYall(self.left(), newY);
+                    return;
+                }
+            };
+
+            self.MakeTheBeepBeep = function () {
+                var ambo = self.element;
+                self.beepBeepCount = self.beepBeepCount + 1;
+
+                var id = 'beepBeep' + self.beepBeepCount;
+                $('body').append('<div id="' + id + '" class="beepBeep" style="z-index: 10' + self.beepBeepCount + '">beep beep</div>');
+
+                $('#' + id).css('top', self.top());
+
+                if (self.goRight()) {
+                    $('#' + id).css('left', self.left() - 80);
+                } else {
+                    $('#' + id).css('left', self.left() + $(ambo).width() + 10);
+                }
+
+                $('#' + id).show();
+                $('#' + id).fadeOut(1000, function () {
+                    $('#' + id).remove();
+                });
+            }
+
+            self.CreateOnScreen();
+            self.MakeTheBeepBeep();
+
+        }
+
+        var viewModel = function () {
+            var self = this;
+
+            self.pickUpAreaCounter = 0;
+            self.generatePeepsInterval = ko.observable(3000)
+            self.generatePeepsIntervalDecreasesBy = 20;
+            self.generatePeepsMinInterval = 200;
+            self.maxPeeps = 500;
+            self.peopleCounter = 0;
+            self.beeCounter = 0;
+            self.people = ko.observableArray();
+            self.ambulancePeeps = ko.observableArray();
+            self.ambo = new amboModel();
+            self.pickUpAreas = ko.observableArray();
+
+            self.GeneratePeep = function () { 
+                if (self.people().length < self.maxPeeps) {
+                    self.peopleCounter += 1;
+                    var person = new personModel(self.peopleCounter);
+                    self.people.push(person);
+                    var newInterval = self.generatePeepsInterval() - self.generatePeepsIntervalDecreasesBy;
+                    if (newInterval < self.generatePeepsMinInterval)
+                        newInterval = self.generatePeepsMinInterval;
+                    self.generatePeepsInterval(newInterval);
+                }
+                setTimeout(function () {
+                    self.GeneratePeep();
+                }, self.generatePeepsInterval());
+                
+            }
+
+            self.MovePersonToAmbo = function (person) {
+                self.ambulancePeeps.push(person);
+                self.people.remove(person);
+            }
+
+            self.ShowPickupArea = function (left, top, width, height) {
+                self.pickUpAreaCounter += 1;
+                var pickUp = new pickUpArea(self.pickUpAreaCounter, left, top, width, height);
+                self.pickUpAreas.push(pickUp);
+                $('#'+pickUp.htmlId()).fadeOut(2000, function () {
+                    self.pickUpAreas.remove(pickUp);
+                });
+            }
+
+            self.PerformPickup = function () {
+                // go through all the people, are any close to the ambo, if so, pick those folk up
+                var amboLeft = self.ambo.left();
+                var amboTop = self.ambo.top();
+                var dudesToMove = ko.observableArray();
+                var pickUpAreaLeft = amboLeft - 50;
+                var pickUpAreaRight = amboLeft + 80;
+                var pickUpAreaTop = amboTop - 50;
+                var pickUpAreaBottom = amboTop + 80
+                var pickUpAreaWidth = pickUpAreaRight - pickUpAreaLeft;
+                var pickUpAreaHeight = pickUpAreaBottom - pickUpAreaTop;
+                self.ShowPickupArea(pickUpAreaLeft, pickUpAreaTop, pickUpAreaWidth, pickUpAreaHeight);
+                ko.utils.arrayForEach(self.people(), function (item) {
+                    console.log('co-ords are x: ' + item.left() + '; y: ' + item.top());
+                    console.log(item.id);
+                    console.log(item);
+                    console.log(amboLeft + ',' + amboTop);
+                    console.log(pickUpAreaLeft + ' < ' + (item.left() +20) + ' && ' + amboLeft + 80 + ' > ' + item.left())
+                    if (pickUpAreaLeft < (item.left() + 20) && pickUpAreaRight > item.left()) {
+                        console.log('X IS GOOD');
+                        if (pickUpAreaTop < (item.top()+30) && pickUpAreaBottom > item.top()) {
+                            console.log('MOVE THE PERSON YO');
+                            
+                            dudesToMove.push(item);
+                        }
+                    }
+                });
+
+                for (index = 0; index < dudesToMove().length; ++index) {
+                    self.MovePersonToAmbo(dudesToMove()[index]);
+                }
+
+            }
+
+
+
+            self.GeneratePeep();
+        }
+
+
+        $(document).ready(function () {
+            var vm = new viewModel();
+            ko.applyBindings(vm);
+
+            positionTheStupidElements();
+
+            $("body").keydown(function (e) {
+                switch (e.which) {
+                    case 37: // left
+                        vm.ambo.goLeft(true);
+                        vm.ambo.MoveAmbo();
+                        break;
+
+                    case 38: // up
+                        vm.ambo.goUp(true);
+                        vm.ambo.MoveAmbo();
+                        break;
+
+                    case 39: // right
+                        vm.ambo.goRight(true);
+                        vm.ambo.MoveAmbo();
+                        break;
+
+                    case 40: // down
+                        vm.ambo.goDown(true);
+                        vm.ambo.MoveAmbo();
+                        break;
+                    case 97, 65: // a
+                        vm.ambo.Accelerate(true);
+                        break;
+                    case 122, 90: // z
+                        vm.ambo.Accelerate(false);
+                        break;
+
+                    case 32: // space
+                        vm.ambo.MakeTheBeepBeep();
+                        vm.PerformPickup();
+                        break;
+
+                    default: return; // exit this handler for other keys
+                }
+            });
+            $("body").keyup(function (e) {
+                switch (e.which) {
+                    case 37: // left
+                        vm.ambo.goLeft(false);
+                        break;
+
+                    case 38: // up
+                        vm.ambo.goUp(false);
+                        break;
+
+                    case 39: // right
+                        vm.ambo.goRight(false);
+                        break;
+
+                    case 40: // down
+                        vm.ambo.goDown(false);
+                        break;
+
+                    default: return; // exit this handler for other keys
+                }
+            });
+
+        });
+
+
+        function randomIntFromInterval(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+        
+        function positionTheStupidElements() {
+            var dev = $('.dev');
+            var test = $('.test');
+            var train = $('.training');
+            var header = $('.header');
+            var arrowKeys = $('.arrowKeys');
+            var ambo = $('.ambulance');
+
+            var padding = 50;
+
+            var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+            header.css("left", headerLeft);
+            header.css("top", 100);
+            header.show();
+
+            var testLeft = ($('body').width() / 2) - (test.width() / 2);
+            test.css("left", testLeft);
+            test.css("top", 180);
+            test.show();
+
+            var devLeft = testLeft - dev.width() - padding;
+            dev.css("left", devLeft);
+            dev.css("top", 180);
+            dev.show();
+
+            var trainLeft = testLeft + test.width() + padding;
+            train.css("left", trainLeft);
+            train.css("top", 180);
+            train.show();
+
+
+
+            var arrowKeysLeft = ($('body').width() / 2) - (260); // width wat
+            arrowKeys.css("left", arrowKeysLeft);
+            arrowKeys.css("top", 400);
+            arrowKeys.show();
+        }
+    </script>
+</body>
+</html>

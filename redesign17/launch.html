@@ -1,0 +1,341 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            display: none;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 90000;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 90000;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 9000000;
+        }
+        .header {
+            position: absolute;
+        }
+        .arrowKeys {
+            position: absolute;
+            display: none;
+        }
+        .ambulance {
+            position: absolute;
+            display: none;
+        }
+        .ambulance img {
+            width: 30px;
+            height: 30px;
+        }
+        .beepBeep {
+            position: absolute;
+            display: none;
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        The non-production environments of WebPAS are below:
+    </div>
+    <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+        <div class="environmentName">Dev</div>
+    </div></a>
+    <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+        <div class="environmentName">Test</div>
+    </div></a>
+    <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+        <div class="environmentName">Train</div>
+    </div></a>
+    <div class="ambulance">
+        <img src="amboRight.png" alt="ambo" />
+    </div>
+    <div class="arrowKeys">
+        <img src="ArrowKeys.png" alt="arrow keys" />
+    </div>
+
+    <script type="text/javascript">
+
+        var objectCount = 0;
+        var dev;
+        var test;
+        var train;
+        var header;
+        var ambo;
+
+        $(document).ready(function () {
+            
+            dev = $('.dev');
+            test = $('.test');
+            train = $('.training');
+            header = $('.header');
+            arrowKeys = $('.arrowKeys');
+            ambo = $('.ambulance');
+
+            positionTheStupidElements();
+
+            var moving = false;
+            var goUp = false;
+            var goDown = false;
+            var goLeft = false;
+            var goRight = false;
+            var speed = 200;
+            var speedMax = 600;
+            var speedMin = 50;
+            var speedChangeIncrement = 50;
+
+            MakeTheBeepBeep();
+
+            $("body").keydown(function (e) {
+                switch (e.which) {
+                    case 37: // left
+                        goLeft = true;
+                        MoveAmbo();
+                        break;
+
+                    case 38: // up
+                        goUp = true;
+                        MoveAmbo();
+                        break;
+
+                    case 39: // right
+                        goRight = true;
+                        MoveAmbo();
+                        break;
+
+                    case 40: // down
+                        goDown = true;
+                        MoveAmbo();
+                        break;
+                    case 97, 65: // a
+                        Accelerate(true);
+                        break;
+                    case 122, 90: // z
+                        Accelerate(false);
+                        break;
+
+                    case 32: // space
+                        MakeTheBeepBeep();
+                        break;
+
+                    default: return; // exit this handler for other keys
+                }
+            });
+            $("body").keyup(function (e) {
+                switch (e.which) {
+                    case 37: // left
+                        goLeft = false;
+                        break;
+
+                    case 38: // up
+                        goUp = false;
+                        break;
+
+                    case 39: // right
+                        goRight = false;
+                        break;
+
+                    case 40: // down
+                        goDown = false;
+                        break;
+
+                    default: return; // exit this handler for other keys
+                }
+            });
+
+            function MakeTheBeepBeep() {
+                objectCount = objectCount + 1;
+
+                var id = 'beepBeep' + objectCount;
+                $('body').append('<div id="' + id + '" class="beepBeep" style="z-index: 10' + objectCount + '">beep beep</div>');
+
+                $('#' + id).css('top', $(ambo).position().top);
+
+                if (goRight) {
+                    $('#' + id).css('left', $(ambo).position().left - 80);
+                } else {
+                    $('#' + id).css('left', $(ambo).position().left + $(ambo).width() + 10);
+                }
+
+                $('#' + id).show();
+                $('#' + id).fadeOut(1000, function () {
+                    $('#' + id).remove();
+                });
+            }
+
+            function Accelerate(faster) {
+                var newSpeed;
+                if (faster) {
+                    newSpeed = speed - speedChangeIncrement;
+                    if (newSpeed < speedMin)
+                        newSpeed = speedMin;
+                } else {
+                    newSpeed = speed + speedChangeIncrement;
+                    if (newSpeed > speedMax)
+                        newSpeed = speedMax;
+                }
+                speed = newSpeed;
+            }
+
+            function MoveAmbo() {
+                if (moving) return;
+                if (goRight) {
+                    var newX = ambo.position().left + ambo.width();
+                    moving = true;
+                    ambo.find('img').attr('src', 'amboRight.png');
+                    ambo.animate({ "left": newX + "px" }, speed, 'linear', function () {
+                        moving = false;
+                        MoveAmbo()
+                    });
+                    return;
+                }
+                if (goLeft) {
+                    var newX = ambo.position().left - ambo.width();
+                    moving = true;
+                    ambo.find('img').attr('src', 'amboLeft.png');
+                    ambo.animate({ "left": newX + "px" }, speed, 'linear', function () {
+                        moving = false;
+                        MoveAmbo()
+                    });
+                    return;
+                }
+                if (goDown) {
+                    var newY = ambo.position().top + ambo.height();
+                    moving = true;
+                    ambo.find('img').attr('src', 'amboDown.png');
+                    ambo.animate({ "top": newY + "px" }, speed, 'linear', function () {
+                        moving = false;
+                        MoveAmbo()
+                    });
+                    return;
+                }
+                if (goUp) {
+                    var newY = ambo.position().top - ambo.height();
+                    moving = true;
+                    ambo.find('img').attr('src', 'amboUp.png');
+                    ambo.animate({ "top": newY + "px" }, speed, 'linear', function () {
+                        moving = false;
+                        MoveAmbo()
+                    });
+                    return;
+                }
+
+            }
+
+            //$("body").keydown(function (e) {
+            //    if (moving) return;
+            //
+            //    switch (e.which) {
+            //        case 37: // left
+            //            console.log("left.");
+            //            var newX = ambo.position().left - ambo.width();
+            //            moving = true;
+            //            ambo.animate({ "left": newX + "px" }, 200, 'linear', function () {
+            //                moving = false;
+            //            });
+            //            break;
+            //
+            //        case 38: // up
+            //            var newY = ambo.position().top - ambo.height();
+            //            moving = true;
+            //            ambo.animate({ "top": newY + "px" }, 200, 'linear', function () {
+            //                moving = false;
+            //            });
+            //            break;
+            //
+            //        case 39: // right
+            //            console.log("right.");
+            //            var newX = ambo.position().left + ambo.width();
+            //            moving = true;
+            //            ambo.animate({ "left": newX + "px" }, 200, 'linear', function () {
+            //                moving = false;
+            //            });
+            //            break;
+            //
+            //        case 40: // down
+            //            var newY = ambo.position().top + ambo.height();
+            //            moving = true;
+            //            ambo.animate({ "top": newY + "px" }, 200, 'linear', function () {
+            //                moving = false;
+            //            });
+            //            break;
+            //            break;
+            //
+            //        default: return; // exit this handler for other keys
+            //    }
+            //    e.preventDefault(); // prevent the default action (scroll / move caret)
+            //
+            //});
+
+        });
+
+
+
+
+
+        function positionTheStupidElements() {
+            var padding = 50;
+
+            var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+            header.css("left", headerLeft);
+            header.css("top", 100);
+            header.show();
+
+            var testLeft = ($('body').width() / 2) - (test.width() / 2);
+            test.css("left", testLeft);
+            test.css("top", 180);
+            test.show();
+
+            var devLeft = testLeft - dev.width() - padding;
+            dev.css("left", devLeft);
+            dev.css("top", 180);
+            dev.show();
+
+            var trainLeft = testLeft + test.width() + padding;
+            train.css("left", trainLeft);
+            train.css("top", 180);
+            train.show();
+
+            var amboLeft = ($('body').width() / 2) - (ambo.width() / 2);
+            ambo.css("left", amboLeft);
+            ambo.css("top", 350);
+            ambo.show();
+
+            var arrowKeysLeft = ($('body').width() / 2) - (260); // width wat
+            arrowKeys.css("left", arrowKeysLeft);
+            arrowKeys.css("top", 400);
+            arrowKeys.show();
+        }
+    </script>
+</body>
+</html>

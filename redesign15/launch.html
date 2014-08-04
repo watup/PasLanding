@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            display: none;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 90000;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 90000;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 9000000;
+        }
+        .header {
+            position: absolute;
+        }
+        
+        .ambulance {
+            position: absolute;
+            top: 120px;
+            padding: 0;
+            margin: 0;
+            font-size: 0;
+        }
+        .ambulance img {
+            width: 60px;
+            height: 60px;
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        The non-production environments of WebPAS are below:
+    </div>
+    <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+        <div class="environmentName">Dev</div>
+    </div></a>
+    <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+        <div class="environmentName">Test</div>
+    </div></a>
+    <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+        <div class="environmentName">Train</div>
+    </div></a>
+    <div class="ambulance"><img src="ambo.png" alt="ambo" /></div>
+
+    <script type="text/javascript">
+
+        var objectCount = 0;;
+        var dev;
+        var test;
+        var train;
+        var header;
+
+        $(document).ready(function () {
+            
+            dev = $('.dev');
+            test = $('.test');
+            train = $('.training');
+            header = $('.header');
+
+            positionTheStupidElements();
+
+            var ambo = $('.ambulance');
+            MoveAmbo(ambo, 'right');
+            
+        });
+
+        function ChangeAmboColour(ambo, distance) {
+            var totalTravelWidth = $('body').width() - ambo.width();
+            var percentage = distance / totalTravelWidth * 100;
+            var hueValue = Math.floor(360 * (percentage / 100));
+            //ambo.css({ backgroundColor: 'hsl(' + hueValue + ',100%,80%)' });
+            var colour = hslToRgb(percentage / 100, 1, .8);
+            ambo.css({ backgroundColor: colour });
+        }
+
+        function MoveAmbo(ambo, direction) {
+
+            ambo.find('img').attr('src', 'ambo-'+direction+'.png');
+            var nextDirection = 'right';
+            var moveTo = '0px';
+
+            if (direction == 'right') {
+                nextDirection = 'left';
+                moveTo = $('body').width() - ambo.width() + "px";
+            }
+
+            ambo.animate({ "left": moveTo },
+                {
+                    duration: 4000,
+                    easing: 'swing',
+                    complete: function () {
+                        MoveAmbo(ambo, nextDirection);
+                    },
+                    step: function (now, fx) {
+                        ChangeAmboColour(ambo, now);
+                    }
+                });
+
+        }
+
+        function hslToRgb(h, s, l) {
+            var r, g, b;
+
+            if (s == 0) {
+                r = g = b = l; // achromatic
+            } else {
+                function hue2rgb(p, q, t) {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                }
+
+                var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                var p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+
+            return 'rgb(' + Math.round(r * 255) + ',' + Math.round(g * 255) + ',' + Math.round(b * 255) +')';
+        }
+
+        function positionTheStupidElements() {
+            var padding = 50;
+
+            var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+            header.css("left", headerLeft);
+            header.css("top", 100);
+            header.show();
+
+            var testLeft = ($('body').width() / 2) - (test.width() / 2);
+            test.css("left", testLeft);
+            test.css("top", 180);
+            test.show();
+
+            var devLeft = testLeft - dev.width() - padding;
+            dev.css("left", devLeft);
+            dev.css("top", 180);
+            dev.show();
+
+            var trainLeft = testLeft + test.width() + padding;
+            train.css("left", trainLeft);
+            train.css("top", 180);
+            train.show();
+        }
+    </script>
+</body>
+</html>

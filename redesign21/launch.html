@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            width: 200px;
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 10px 5px 10px 5px;
+            font-size: 50px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 2;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 2;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 2;
+        }
+        .header {
+        }
+
+        .wrapper div {
+	        position: absolute;
+        }
+        .step1 {
+            width: 800px;
+	        text-align: center;
+        }
+        .step2 {
+	        top: 740px;
+	        left: 180px;
+	        width: 440px;
+        }
+        .step3 {
+	        top: 1510px;
+	        left: 430px;
+	        width: 400px;
+        }
+
+        .step4 {
+	        top: 1540px;
+	        left: 1600px;
+	        width: 400px;
+        }
+
+        .step5 {
+            left: 2185px;
+            top: 660px;
+            width: 460px;
+            -moz-transform: rotate(-90deg) translateY(2.5em);
+            -ms-transform: rotate(-90deg) translateY(2.5em);
+            -o-transform: rotate(-90deg) translateY(2.5em);
+            -webkit-transform: rotate(-90deg) translateY(2.5em);
+            transform: rotate(-90deg) translateY(2.5em);
+        }
+
+        .step5 .upside-down {
+            font-size: 42px;
+            text-align: right;
+            -moz-transform: rotate(180deg) translateY(3em);
+            -ms-transform: rotate(180deg) translateY(3em);
+            -o-transform: rotate(180deg) translateY(3em);
+            -webkit-transform: rotate(180deg) translateY(3em);
+            transform: rotate(180deg) translateY(3em);
+        }
+
+        .step6 {
+            left: 2200px;
+            top: -800px;
+            width: 400px;
+            -moz-transform: rotate(90deg) translateX(50px);
+            -ms-transform: rotate(90deg) translateX(50px);
+            -o-transform: rotate(90deg) translateX(50px);
+            -webkit-transform: rotate(90deg) translateX(50px);
+            transform: rotate(90deg) translateX(50px);
+        }
+        .step7 {
+            width: 475px;
+            left: 1100px;
+            top: -950px;
+            -moz-transform: rotate(90deg) translateX(50px);
+            -ms-transform: rotate(90deg) translateX(50px);
+            -o-transform: rotate(90deg) translateX(50px);
+            -webkit-transform: rotate(90deg) translateX(50px);
+            transform: rotate(90deg) translateX(50px);
+        }
+        .scrollPrompt {
+            color: rgba(60, 60, 60, 0.38);
+            font-size: 20px;
+        }
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+    <script src="knockout-3.0.0.js"></script>
+    <script src="jquery.scrollpath.min.js"></script>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="step1">
+            The non-production environments of WebPAS are below:
+            <br /><br />
+            <a class="environmentLink dev" href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1">Dev</a>
+            <a class="environmentLink test" href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1">Test</a>
+            <a class="environmentLink training" href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1">Train</a>
+            <br /><br /><br />
+            <span class="scrollPrompt">scroll me (in a good browser (probably not ie8))</span>
+        </div>
+        <div class="step2">
+            <a class="environmentLink dev" href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1">Dev</a><br />
+            <a class="environmentLink test" href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1">Test</a><br />
+            <a class="environmentLink training" href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1">Train</a>
+        </div>
+        <div class="step3">
+            <a class="environmentLink dev" href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1">Dev</a>
+            <a class="environmentLink test" href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1">Test</a>
+            <a class="environmentLink training" href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1">Train</a>
+        </div>
+        <div class="step4">
+            <a class="environmentLink dev" href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1">Dev</a><br />
+            <a class="environmentLink test" href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1">Test</a><br />
+            <a class="environmentLink training" href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1">Train</a>
+        </div>
+        <div class="step5">
+            <a class="environmentLink dev" href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1">Dev</a><br />
+            <a class="environmentLink test" href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1">Test</a><br />
+            <a class="environmentLink training" href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1">Train</a>
+        </div>
+        <div class="step6">
+            <a class="environmentLink dev" href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1">Dev</a><br />
+            <a class="environmentLink test" href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1">Test</a><br />
+            <a class="environmentLink training" href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1">Train</a>
+        </div>
+        <div class="step7">
+            <a class="environmentLink dev" href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1">Dev</a>
+            <a class="environmentLink test" href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1">Test</a>
+            <a class="environmentLink training" href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1">Train</a>
+        </div>
+    </div>
+
+
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            var path = $.fn.scrollPath("getPath");
+            
+
+            // Move to 'start' element
+            path.moveTo(400, 50, { name: "start" })
+            // Line to 'description' element
+            .lineTo(400, 800, {name: "step2"})
+            // Arc down and line to 'syntax'
+            .arc(200, 1200, 400, -Math.PI/2, Math.PI/2, true)
+            .lineTo(600, 1600, {
+                callback: function() {
+                    //highlight($(".settings"));
+                },
+                name: "step3"
+            })
+            // Continue line to 'scrollbar'
+            .lineTo(1750, 1600, {
+                callback: function() {
+                    //highlight($(".sp-scroll-handle"));
+                },
+                name: "step4"
+            })
+            // Arc up while rotating
+            .arc(1800, 1000, 600, Math.PI/2, 0, true, {rotate: Math.PI/2 })
+            // Line to 'rotations'
+            .lineTo(2400, 750, {
+                name: "step5"
+            })
+            // Rotate in place
+            .rotate(3*Math.PI/2, {
+                name: "step5-rotated"
+            })
+            // Continue upwards to 'source'
+            .lineTo(2400, -700, {
+                name: "step6"
+            })
+            // Small arc downwards
+            .arc(2250, -700, 150, 0, -Math.PI/2, true)
+
+            //Line to 'follow'
+            .lineTo(1350, -850, {
+                name: "step7"
+            })
+            // Arc and rotate back to the beginning.
+            .arc(1300, 50, 900, -Math.PI/2, -Math.PI, true, {rotate: Math.PI*2, name: "end"});
+
+
+
+
+            $("body").scrollPath({
+                drawPath: false,
+                wrapAround: true,
+                scrollBar: false
+            });
+
+            //positionTheStupidElements();
+        });
+
+
+        function positionTheStupidElements() {
+            var dev = $('.dev');
+            var test = $('.test');
+            var train = $('.training');
+            var header = $('.header');
+            var arrowKeys = $('.arrowKeys');
+            var ambo = $('.ambulance');
+
+            var padding = 50;
+
+            var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+            header.css("left", headerLeft);
+            header.css("top", 100);
+            header.show();
+
+            var testLeft = ($('body').width() / 2) - (test.width() / 2);
+            test.css("left", testLeft);
+            test.css("top", 180);
+            test.show();
+
+            var devLeft = testLeft - dev.width() - padding;
+            dev.css("left", devLeft);
+            dev.css("top", 180);
+            dev.show();
+
+            var trainLeft = testLeft + test.width() + padding;
+            train.css("left", trainLeft);
+            train.css("top", 180);
+            train.show();
+
+
+
+            var arrowKeysLeft = ($('body').width() / 2) - (260); // width wat
+            arrowKeys.css("left", arrowKeysLeft);
+            arrowKeys.css("top", 400);
+            arrowKeys.show();
+        }
+    </script>
+</body>
+</html>

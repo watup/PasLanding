@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .content{
+            width: 700px;
+            margin: 0 auto;
+            margin-top: 125px;
+        }
+        .linksContainer {
+            margin-top: 40px;
+            position: relative;
+        }
+        .environmentLink {
+            display: inline-block;
+            padding-left: 5px;
+            padding-right: 5px;
+            width: 200px;
+            height: 100px;
+            position: absolute;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 100;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 110;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 100;
+        }
+        
+        .ambulance {
+            position: absolute;
+            top: 0px;
+            margin-top: 90px;
+            left: -256px;
+            margin-top: 280px;
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="ambulance amboBottomLeft">
+        <img class="" src="ambobottomleft.png" alt="ambo go fast" />
+    </div>
+    <div class="ambulance amboBottomRight">
+        <img class="" src="ambobottomright.png" alt="ambo go fast" />
+    </div>
+    <div class="ambulance amboLight">
+        <img class="" src="ambolight.png" alt="ambo go fast" />
+    </div>
+    <div class="ambulance amboTopLeft">
+        <img class="" src="ambotopleft.png" alt="ambo go fast" />
+    </div>
+    <div class="ambulance amboTopRight">
+        <img class="" src="ambotopright.png" alt="ambo go fast" />
+    </div>
+    <div class="content">
+        <div class="header">
+            The non-production environments of WebPAS are below:
+        </div>
+        <div class="linksContainer">
+            <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+                <div class="environmentName">Dev</div>
+            </div></a>
+            <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+                <div class="environmentName">Test</div>
+            </div></a>
+            <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+                <div class="environmentName">Train</div>
+            </div></a>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+
+
+        $(document).ready(function () {
+            var ambulanceParts = $('.amboTopRight, .amboLight, .amboTopLeft, .amboBottomRight, .amboBottomLeft');
+
+            var parentWidth = ambulanceParts.parent().width();
+            var halfWay = (parentWidth / 2) - 125;
+            var speedValue = 2000;
+            var delayBeforeReturning = 10000;
+
+            MoveTheWaaaambulance(ambulanceParts);
+
+            function MoveTheWaaaambulance(ambulanceParts) {
+                $('.amboTopRight').animate({ "left": halfWay + "px" }, speedValue, 'linear', function () {
+                    $('.amboTopRight').animate({ "left": parentWidth + "px", "top": "-200px" }, speedValue, 'linear', function () {
+                        console.log('amboTopRight done');
+                    });
+                });
+                $('.amboLight').animate({ "left": halfWay + "px" }, speedValue, 'linear', function () {
+                    $('.amboLight').animate({ "left": (parentWidth) + "px", "top": "-300px" }, speedValue * 1.5, 'linear', function () {
+
+                    });
+                });
+                $('.amboTopLeft').animate({ "left": halfWay + "px" }, speedValue, 'linear', function () {
+                    $('.amboTopLeft').animate({ "left": (parentWidth) + "px", "top": "-450px" }, speedValue * 2, 'linear', function () {
+
+                    });
+                });
+                $('.amboBottomRight').animate({ "left": halfWay + "px" }, speedValue, 'linear', function () {
+                    $('.amboBottomRight').animate({ "left": (parentWidth) + "px", "top": "+200px" }, speedValue, 'linear', function () {
+
+                    });
+                });
+                $('.amboBottomLeft').animate({ "left": halfWay + "px" }, speedValue, 'linear', function () {
+                    $('.amboBottomLeft').animate({ "left": (parentWidth) + "px", "top": "+450px" }, speedValue * 2, 'linear', function () {
+
+                    });
+                });
+
+                setTimeout(function () {
+                    ambulanceParts.css("left", -256);
+                    ambulanceParts.css("top", 0);
+                    MoveTheWaaaambulance(ambulanceParts);
+                }, delayBeforeReturning)
+
+
+            }
+        });
+
+
+    </script>
+</body>
+</html>

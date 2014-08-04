@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .content{
+            width: 700px;
+            margin: 0 auto;
+            margin-top: 125px;
+        }
+        .linksContainer {
+            margin-top: 40px;
+        }
+        .environmentLink {
+            display: inline-block;
+            padding-left: 5px;
+            padding-right: 5px;
+            width: 200px;
+            height: 100px;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+        }
+        .test {
+            background-color: #DBB085;
+        }
+        .training {
+            background-color: #D88484;
+        }
+        
+        .ambulance {
+            position: absolute;
+            left: -256px;
+            top: 0px;
+            margin-top: 250px;
+        }
+        .hi, .blood {
+            position: absolute;
+            display: none;
+        }   
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="hi"><img src="kpe001JustHead.png" alt="my head" /></div>
+    <div class="blood"><img src="blood.png" alt="blood" /></div>
+    <div class="ambulance">
+        <img src="Medicine-Ambulance-icon.png" alt="ambo go fast" />
+    </div>
+    <div class="content">
+        <div class="header">
+            The non-production environments of WebPAS are below:
+        </div>
+        <div class="linksContainer">
+            <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+                <div class="environmentName">Dev</div>
+            </div></a>
+            <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+                <div class="environmentName">Test</div>
+            </div></a>
+            <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+                <div class="environmentName">Train</div>
+            </div></a>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+
+        $.fn.animateRotate = function (angle, duration, easing, complete) {
+            return this.each(function () {
+                var $elem = $(this);
+
+                $({ deg: 0 }).animate({ deg: angle }, {
+                    duration: duration,
+                    easing: easing,
+                    step: function (now) {
+                        $elem.css({
+                            transform: 'rotate(' + now + 'deg)'
+                        });
+                    },
+                    complete: complete || $.noop
+                });
+            });
+        };
+
+
+        $(document).ready(function () {
+
+
+
+        });
+
+
+        var ambulance = $('.ambulance');
+
+        var parentWidth = ambulance.parent().width();
+        var halfWay = parentWidth / 2;
+        var speedValue = 2000;
+        var delayBeforeReturning = 4000;
+
+        MoveTheWaaaambulance(ambulance);
+
+        function MoveTheWaaaambulance(ambulance) {
+            ambulance.animate({ "left": halfWay + "px" }, speedValue / 2, 'linear', function () {
+
+                var startAtY = ambulance.offset().top + 175;
+                var startAtX = halfWay;
+                var firstMoveToY = startAtY + 50;
+                var firstMoveToX = halfWay-50;
+
+                var secondMoveToY = startAtY + 50;
+                var secondMoveToX = halfWay - 200;
+
+                var hi = $('.hi');
+                var blood = $('.blood');
+
+                hi.css("left", startAtX);
+                hi.css("top", startAtY);
+                hi.show();
+
+                hi.animate({ "top": firstMoveToY + "px", "left": firstMoveToX + "px" }, 500, 'linear', function () {
+
+                    blood.css("left", firstMoveToX - 25);
+                    blood.css("top", firstMoveToY + 38);
+                    blood.show();
+                    hi.animate({ "left": secondMoveToX + "px" }, 3500, 'linear');
+                });
+
+                hi.animateRotate(-500, 3000, "swing", function () {
+                    //$('.hi').text('bye');
+                    hi.hide();
+                    blood.hide();
+                });
+
+
+
+
+                ambulance.animate({ "left": parentWidth + "px" }, speedValue/2, 'linear', function () {
+
+
+                    ambulance.css("left", -256);
+
+                    setTimeout(function () {
+                        MoveTheWaaaambulance(ambulance);
+                    }, delayBeforeReturning)
+                });
+
+            });
+        }
+
+
+
+    </script>
+</body>
+</html>

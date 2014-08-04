@@ -1,0 +1,234 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            padding-left: 5px;
+            padding-right: 5px;
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            display: none;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 90000;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 90000;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 9000000;
+        }
+        .header {
+            position: absolute;
+        }
+        .ambulance {
+            position: absolute;
+        }
+        .ambulance img {
+            width: 30px;
+            height: 30px;
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        The non-production environments of WebPAS are below:
+    </div>
+    <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+        <div class="environmentName">Dev</div>
+    </div></a>
+    <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+        <div class="environmentName">Test</div>
+    </div></a>
+    <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+        <div class="environmentName">Train</div>
+    </div></a>
+
+    <script type="text/javascript">
+
+        var objectCount = 0;
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        $(document).ready(function () {
+            var dev = $('.dev');
+            var test = $('.test');
+            var train = $('.training');
+            var header = $('.header');
+
+            var vertMax = $(document).height() - dev.height();
+            var vertMin = 0;
+            var horiMax = $('body').width() - dev.width();
+            var horiMin = 0;
+
+            positionTheStupidElements();
+
+            moveElementSomewhere(dev, 5000);
+            moveElementSomewhere(test, 5000);
+            moveElementSomewhere(train, 5000);
+            //moveElementSomewhere(header, 100000);
+
+            function moveElementSomewhere(element, speed, lastDirection) {
+                var horiTarget = getRandomInt(horiMin, horiMax);
+                var vertTarget = getRandomInt(vertMin, vertMax);
+                var direction = getRandomInt(1, 4);
+                if (lastDirection == 1 && direction == 1) {
+                    direction = 3;
+                }
+                if (lastDirection == 2 && direction == 3) {
+                    direction = 4;
+                }
+                if (lastDirection == 3 && direction == 3) {
+                    direction = 1;
+                }
+                if (lastDirection == 4 && direction == 4) {
+                    direction = 2;
+                }
+
+                if (direction == 1) {
+                    horiTarget = horiMin;
+                } else if (direction == 2) {
+                    vertTarget = vertMin;
+                } else if (direction == 3) {
+                    horiTarget = horiMax;
+                } else if (direction == 4) {
+                    vertTarget = vertMax;
+                }
+                element.animate({ "top": vertTarget + "px", "left": horiTarget + "px" }, {
+                    step: function (now, fx) {
+                            if ($(fx.elem).hasClass('test')) {
+                                checkForIntersection(fx.prop,'Test', test, dev);
+                                checkForIntersection(fx.prop, 'Test', test, train);
+                            } else if ($(fx.elem).hasClass('dev')) {
+                                checkForIntersection(fx.prop, 'Dev', dev, test);
+                                checkForIntersection(fx.prop, 'Dev', dev, train);
+                            } else if ($(fx.elem).hasClass('training')) {
+                                checkForIntersection(fx.prop, 'Train', train, test);
+                                checkForIntersection(fx.prop, 'Train', train, dev);
+                            }
+                    },
+                    duration: speed,
+                    easing: 'linear',
+                    complete: function () {
+                        moveElementSomewhere(element, speed, direction);
+                    }
+                });
+
+            }
+
+            function checkForIntersection(planeCheck, type, elementOne, elementTwo) {
+                
+                var elementOneTop = elementOne.position().top;
+                var elementTwoTop = elementTwo.position().top;
+                var elementOneLeft = elementOne.position().left;
+                var elementTwoLeft = elementTwo.position().left;
+                var direction = '';
+
+                if (planeCheck == 'top') {
+
+                    if ((elementOneTop > elementTwoTop && elementOneTop < elementTwoTop + 100) ||
+                        (elementOneTop + 100 > elementTwoTop && elementOneTop + 100 < elementTwoTop + 100)) {
+
+                        direction = 'Left';
+                        if (elementOne.position().left < elementTwoLeft) {
+                            direction = 'Right';
+                        }
+
+                        ZoomTheAmbo(elementOneTop + 50, elementTwoTop + 50, elementOneLeft + 100, elementTwoLeft + 100, type, direction);
+                    }
+                } else if (planeCheck == 'left') {
+
+                    if((elementOneLeft > elementTwoLeft && elementOneLeft < elementTwoLeft + 200) ||
+                        (elementOneLeft+200 > elementTwoLeft && elementOneLeft+200 < elementTwoLeft + 200)) {
+                        direction = 'Up';
+                        if (elementOneTop < elementTwoTop) {
+                            direction = 'Down';
+                        }
+
+                        ZoomTheAmbo(elementOneTop + 50, elementTwoTop+50, elementOneLeft + 100, elementTwoLeft + 100, type, direction);
+                    }
+
+                }
+
+            }
+
+            function ZoomTheAmbo(fromTop, toTop, fromLeft, toLeft, type, direction) {
+
+                var elementId = addTheStupidHtml($('body'), type, direction);
+
+                var newAmbo = $('#' + elementId);
+                newAmbo.css("top", fromTop);
+                newAmbo.css("left", fromLeft);
+                newAmbo.animate({ "top": toTop + "px", "left": toLeft + "px" }, 100, 'linear', function () {
+                    newAmbo.remove();
+                });
+            }
+
+            function addTheStupidHtml(container, type, direction) {
+                objectCount = objectCount + 1;
+
+                id = 'ambulance' + objectCount;
+                $(container).append('<div id="' + id + '" class="ambulance" style="z-index: ' + objectCount + '"><img src="ambo'+type+direction+'.png" alt="dat ambo" /></div>')
+
+                return id;
+            }
+
+            function positionTheStupidElements() {
+                var padding = 50;
+
+                var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+                header.css("left", headerLeft);
+                header.css("top", 100);
+                header.show();
+
+                var testLeft = ($('body').width() / 2) - (test.width() / 2);
+                test.css("left", testLeft);
+                test.css("top", 180);
+                test.show();
+
+                var devLeft = testLeft - dev.width() - padding;
+                dev.css("left", devLeft);
+                dev.css("top", 180);
+                dev.show();
+
+                var trainLeft = testLeft + test.width() + padding;
+                train.css("left", trainLeft);
+                train.css("top", 180);
+                train.show();
+            }
+        });
+
+
+
+    </script>
+</body>
+</html>

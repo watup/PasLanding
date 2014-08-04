@@ -1,0 +1,361 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            display: none;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 90000;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 90000;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 9000000;
+        }
+        .header {
+            position: absolute;
+        }
+        .consoleContainer {
+            position: absolute;
+            width: 700px;
+            height: 350px;
+            border: 1px solid black;
+            display: none;
+            text-align: left;
+            background-color: #000;
+            font-family: monospace;
+            font-size: 15px;
+        }
+        .commandHistory {
+            width: 700px;
+            height: 320px;
+            border: 1px solid black;
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+        .commandHistory div{
+            width: 700px;
+        }
+        #commandInput {
+            width: 700px;
+            background-color: #000;
+            border: none;
+            color: #fff;
+            font-family: monospace;
+            font-size: 15px;
+
+        }
+        pre {
+            margin: 0px;
+            white-space: pre-wrap;       /* css-3 */
+             white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+             white-space: -pre-wrap;      /* Opera 4-6 */
+             white-space: -o-pre-wrap;    /* Opera 7 */
+             word-wrap: break-word;       /* Internet Explorer 5.5+ */
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+    <script src="knockout-3.0.0.js"></script>
+</head>
+<body>
+    <div class="header">
+        The non-production environments of WebPAS are below:
+    </div>
+    <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+        <div class="environmentName">Dev</div>
+    </div></a>
+    <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+        <div class="environmentName">Test</div>
+    </div></a>
+    <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+        <div class="environmentName">Train</div>
+    </div></a>
+
+    <div class="consoleContainer">
+        <div class ="commandHistory" data-bind="foreach: commandHistory">
+            <div ><pre data-bind="text: $data"></pre></div>
+        </div>
+        <div>
+            <input type="text" id="commandInput" data-bind="value: command, valueUpdate: 'afterkeydown'" />
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        var objectCount = 0;
+        var dev;
+        var test;
+        var train;
+        var header;
+        var consoleContainer;
+
+        var viewModel = function () {
+            var self = this;
+            var welcomeMessage = [
+                        "            W e   a r e   p l e a s e d   t o   p r e s e n t : ",
+                        " ",
+                        "The Public Health Services",
+                        " ",
+                        "  _____       _                       _   ",
+                        "  \\_   \\_ __ | |_ ___ _ __ _ __   ___| |_ ",
+                        "   / /\\/ '_ \\| __/ _ \\ '__| '_ \\ / _ \\ __|",
+                        "/\\/ /_ | | | | ||  __/ |  | | | |  __/ |_ ",
+                        "\\____/ |_| |_|\\__\\___|_|  |_| |_|\\___|\\__|",
+                        " ",
+                        "The Internet of tomorrow ... today!",
+                        " ",
+                        "version 4.1",
+                        " ",
+                        "You can run these commands:",
+                        " - Help = get help on using this system",
+                        " - About = get info about this system",
+                        " - Browse = use this to start browsing the Internet",
+                        " "
+            ]
+
+            self.prompt = ">";
+            self.commandHistory = ko.observableArray();
+            self.responsesToUnknownCommands = ko.observableArray([
+                "Not a recognized command",
+                "NOT A RECOGNIZED COMMAND",
+                "I don't understand",
+                "Why are you doing this to me",
+                "Why must you torment me?",
+                "I am a good program",
+                "Not a recognized command"
+                ]);
+            self.currentResponseIndex = 0;
+            self.command = ko.observable();
+            self.commandResponses = ko.observableArray([
+                { command: "home", response: welcomeMessage },
+                {
+                    command: "help", response: [
+                        " ",
+                        "HELP",
+                        " ",
+                        "version 4.1",
+                        " ",
+                        "You can run these commands:",
+                        " - Home = print the welcome message!",
+                        " - Help = get help on using this system",
+                        " - About = get info about this system",
+                        " - Browse = use this to start browsing the Internet",
+                        " ",
+                        "error 45D3FFG-44: no help available."
+                    ]
+                },
+                {
+                    command: "about", response: [
+                        " ",
+                        "ABOUT The Public Health Services Contained Internet System",
+                        " ",
+                        "Here at PUBLIC HEALTH SERVICES LIMITED we understand that a lack of trust in your user base combined with extremely low user expectations when it comes to software makes our Internet System better suited to your needs than 'regular Internet'.",
+                        " ",
+                        "Our patented Internet system will only allow your users to access content that we create and you desire. Having only text means network usage is extremely low, and the fact that it is internal makes it extra secure and an Internet in name only!",
+                        " ",
+                        "If you would like more content on your Internet please contact us! (charges will apply)",
+                        " "
+                    ]
+                },
+                {
+                    command: "browse", response: [
+                        " ",
+                        "BROWSE THE INTERNET",
+                        " ",
+                        "The below sites are currently available on the Internet; type 'browse [sitename]' to browse the site.",
+                        " ",
+                        " - publichealthservices.internet",
+                        " - kelvinscats.internet",
+                        " "
+                    ]
+                },
+                {
+                    command: "browse kelvinscats.internet", response: [
+                        " ",
+                        "KelvinsCats.Internet",
+                        " ",
+                        "The cat would like to eat a burger & fries",
+                        " ",
+"                           ,           ",
+"                         _/((          ",
+"                _.---. .'   `\\         ",
+"              .'      `     ^ T=       ",
+"             /     \\       .--'        ",
+"            |      /       )'-.        ",
+"            ; ,   <__..-(   '-.)       ",
+"             \\ \\-.__)    ``--._)     ",
+"           jgs '.'-.__.-.              ",
+"                 '-...-'               ",
+" "
+                    ]
+                },
+                {
+                    command: "browse publichealthservices.internet", response: [
+                        " ",
+                        "______ _   _  _____ ",
+                        "| ___ \\ | | |/  ___|",
+                        "| |_/ / |_| |\\ `--. ",
+                        "|  __/|  _  | `--. \\",
+                        "| |   | | | |/\\__/ /",
+                        "\\_|   \\_| |_/\\____/ ",
+                        "Welcome to publichealthservices.internet",
+                        " ",
+                        "Our motto is 'We put you first, right after our profit'.",
+                        " ",
+                        "We are global leaders in health software with the ability to supply generic software that will superficially fulfil only your broadest business requirements.  All of our software comes with the pretense of configurability and total lack of knowledgable support staff.",
+                        " ",
+                        "If you're a new customer call us today to give us your money, if you're an existing customer running some of our software we look forward from hearing from you and taking your money to inadequately fix all the broken bits.",
+                        " "
+                    ]
+                }
+            ]);
+
+            self.ProcessCommand = function () {
+                var currentCommand = self.command();
+                console.log('adding ' + currentCommand);
+                self.commandHistory.push(currentCommand);
+                var response = self.GetResponse(currentCommand);
+                self.OutputResponse(response);
+                $(".commandHistory").scrollTop($(".commandHistory")[0].scrollHeight);
+                self.ResetCommand();
+            };
+
+            self.OutputResponse = function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    console.log('output: ' + response[i]);
+                    self.commandHistory.push(response[i]);
+                }
+            };
+
+            self.GetResponse = function (command) {
+                var response;
+                // remove the prompt thing
+                if (command.indexOf(self.prompt) == 0) {
+                    command = command.substring(self.prompt.length, command.length);
+                }
+                // is this a known command?
+                console.log('looking for ' + command);
+                var match = ko.utils.arrayFirst(self.commandResponses(), function (item) {
+                    return command.toLowerCase() === item.command;
+                });
+
+                if (match) {
+                    response = match.response;
+                } else {
+                    response = self.GetResponseToUnknownCommand();
+                }
+                return response;
+            };
+
+            self.GetResponseToUnknownCommand = function () {
+                var response = [self.responsesToUnknownCommands()[self.currentResponseIndex]];
+                self.currentResponseIndex = self.currentResponseIndex + 1;
+                if (self.currentResponseIndex == self.responsesToUnknownCommands().length) {
+                    self.currentResponseIndex = 0;
+                }
+                return response;
+            };
+
+            self.ResetCommand = function () {
+                self.command(self.prompt);
+            };
+
+            self.ResetCommand();
+
+
+
+            self.OutputResponse(welcomeMessage);
+
+        };
+
+
+        $(document).ready(function () {
+
+            dev = $('.dev');
+            test = $('.test');
+            train = $('.training');
+            header = $('.header');
+            consoleContainer = $('.consoleContainer');
+
+            positionTheStupidElements();
+
+
+            var vm = new viewModel();
+            ko.applyBindings(vm);
+
+            $('#commandInput').focus();
+
+            $('body').keydown(function (e) {
+                if (e.keyCode == 13) {
+                    vm.ProcessCommand();
+                    return false;
+                }
+            });
+        });
+
+
+
+
+
+        function positionTheStupidElements() {
+            var padding = 50;
+
+            var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+            header.css("left", headerLeft);
+            header.css("top", 60);
+            header.show();
+
+            var testLeft = ($('body').width() / 2) - (test.width() / 2);
+            test.css("left", testLeft);
+            test.css("top", 100);
+            test.show();
+
+            var devLeft = testLeft - dev.width() - padding;
+            dev.css("left", devLeft);
+            dev.css("top", 100);
+            dev.show();
+
+            var trainLeft = testLeft + test.width() + padding;
+            train.css("left", trainLeft);
+            train.css("top", 100);
+            train.show();
+
+            var consoleContainerLeft = ($('body').width() / 2) - (consoleContainer.width() / 2);
+            consoleContainer.css("left", consoleContainerLeft);
+            consoleContainer.css("top", 250);
+            consoleContainer.show();
+        }
+    </script>
+</body>
+</html>

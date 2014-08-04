@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<title>Launch PAS</title>
+
+    <style type="text/css">
+        body {
+            text-align: center;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: #85E085;
+        }
+        .environmentLink {
+            width: 200px;
+            height: 100px;
+            position: absolute;
+            display: none;
+        }
+        .environmentName {
+            color: #fff;
+            font-family: "Arial Black", Gadget, sans-serif;
+            padding: 5px;
+            padding-top: 10px;
+            font-size: 50px;
+        }
+        .dev {
+            background-color: #85DDDD;
+            left: 0px;
+            z-index: 90000;
+        }
+        .test {
+            background-color: #DBB085;
+            left: 240px;
+            z-index: 90000;
+        }
+        .training {
+            background-color: #D88484;
+            left: 480px;
+            z-index: 9000000;
+        }
+        .header {
+            position: absolute;
+        }
+        
+        .ambulance {
+            position: absolute;
+            top: 0px;
+            display: none;
+        }
+        .ambulance img {
+            width: 30px;
+            height: 30px;
+        }
+
+    </style>
+    <script src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        The non-production environments of WebPAS are below:
+    </div>
+    <a href="http://npuapp05/dev/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink dev">
+        <div class="environmentName">Dev</div>
+    </div></a>
+    <a href="http://npuapp05/test/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink test">
+        <div class="environmentName">Test</div>
+    </div></a>
+    <a href="http://npuapp05/trn/cgi-bin/websec01.pbl?reportno=1&template=1"><div class="environmentLink training">
+        <div class="environmentName">Train</div>
+    </div></a>
+
+    <script type="text/javascript">
+
+
+
+        var objectCount = 0;;
+        var dev;
+        var test;
+        var train;
+        var header;
+
+        $(document).ready(function () {
+            
+            dev = $('.dev');
+            test = $('.test');
+            train = $('.training');
+            header = $('.header');
+
+            positionTheStupidElements();
+
+            GimmeAmbo(dev, 'Dev');
+            GimmeAmbo(test, 'Test');
+            GimmeAmbo(train, 'Train');
+
+
+        });
+
+        function GimmeAmbo(element, type) {
+            var newAmboId = addTheStupidHtml(type);
+
+            var ambo = $('#' + newAmboId);
+
+            MoveAmbo(ambo, element, 'Top', type);
+        }
+
+        function MoveAmbo(ambo, elementToCircle, currentSurface, type) {
+
+            ambo.find('img').attr('src', 'ambo' + type + currentSurface + '.png');
+
+            if (currentSurface == 'Top') {
+                ambo.css("left", elementToCircle.position().left + elementToCircle.width() - ambo.width());
+                ambo.css("top", elementToCircle.position().top - ambo.height());
+                ambo.show();
+                ambo.animate({ "left": elementToCircle.position().left + "px" }, 2000, 'linear', function () {
+                    MoveAmbo(ambo, elementToCircle, 'Left', type);
+                });
+            } else if (currentSurface == 'Left') {
+                ambo.css("left", elementToCircle.position().left - ambo.width());
+                ambo.css("top", elementToCircle.position().top);
+                ambo.animate({ "top": elementToCircle.position().top + elementToCircle.height() - ambo.height() + "px" }, 1000, 'linear', function () {
+                    MoveAmbo(ambo, elementToCircle, 'Bottom', type);
+                });
+            } else if (currentSurface == 'Bottom') {
+                ambo.css("left", elementToCircle.position().left);
+                ambo.css("top", elementToCircle.position().top + elementToCircle.height());
+                ambo.animate({ "left": elementToCircle.position().left + elementToCircle.width() - ambo.width() + "px" }, 2000, 'linear', function () {
+                    MoveAmbo(ambo, elementToCircle, 'Right', type);
+                });
+            } else if (currentSurface == 'Right') {
+                ambo.css("left", elementToCircle.position().left + elementToCircle.width());
+                ambo.css("top", elementToCircle.position().top + elementToCircle.height() - ambo.height());
+                ambo.animate({ "top": elementToCircle.position().top + "px" }, 1000, 'linear', function () {
+                    MoveAmbo(ambo, elementToCircle, 'Top', type);
+                });
+            }
+        }
+
+        function addTheStupidHtml(type) {
+            objectCount = objectCount + 1;
+
+            id = 'ambulance' + objectCount;
+            $('body').append('<div id="' + id + '" class="ambulance" style="z-index: 10' + objectCount + '"><img src="ambo' + type + '.png" alt="dat ambo" /></div>')
+
+            return id;
+        }
+
+
+        function positionTheStupidElements() {
+            var padding = 50;
+
+            var headerLeft = ($('body').width() / 2) - (header.width() / 2);
+            header.css("left", headerLeft);
+            header.css("top", 100);
+            header.show();
+
+            var testLeft = ($('body').width() / 2) - (test.width() / 2);
+            test.css("left", testLeft);
+            test.css("top", 180);
+            test.show();
+
+            var devLeft = testLeft - dev.width() - padding;
+            dev.css("left", devLeft);
+            dev.css("top", 180);
+            dev.show();
+
+            var trainLeft = testLeft + test.width() + padding;
+            train.css("left", trainLeft);
+            train.css("top", 180);
+            train.show();
+        }
+    </script>
+</body>
+</html>
